@@ -935,6 +935,23 @@ body.light-theme .dashboard-card, body.light-theme .section-card {
   background: rgba(255, 255, 255, 0.85);
 }
 
+body.light-theme .main-header h1 {
+  background: linear-gradient(to right, var(--text-primary), var(--text-secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+body.light-theme .logout-link-btn {
+  background: rgba(244, 63, 94, 0.08);
+  border-color: rgba(244, 63, 94, 0.3);
+  color: #e11d48;
+}
+
+body.light-theme .logout-link-btn:hover {
+  background: rgba(244, 63, 94, 0.15);
+  color: #be123c;
+}
+
 .settings-btn {
   background: transparent;
   border: none;
@@ -1095,6 +1112,23 @@ body.grey-theme .stat-card {
 
 body.grey-theme .dashboard-card, body.grey-theme .section-card {
   background: rgba(255, 255, 255, 0.85);
+}
+
+body.grey-theme .main-header h1 {
+  background: linear-gradient(to right, var(--text-primary), var(--text-secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+body.grey-theme .logout-link-btn {
+  background: rgba(244, 63, 94, 0.08);
+  border-color: rgba(244, 63, 94, 0.3);
+  color: #e11d48;
+}
+
+body.grey-theme .logout-link-btn:hover {
+  background: rgba(244, 63, 94, 0.15);
+  color: #be123c;
 }
 
 body.grey-theme .theme-select-btn {
