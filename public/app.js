@@ -22,6 +22,7 @@ let productsData = [];
 
 // Init Page
 document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
   initNavigation();
   initEventListeners();
   loadCurrentSection();
@@ -115,6 +116,16 @@ function initEventListeners() {
   document.getElementById('close-offer-modal').onclick = () => toggleModal('offer-modal', false);
   document.getElementById('cancel-offer-form').onclick = () => toggleModal('offer-modal', false);
   document.getElementById('close-order-modal').onclick = () => toggleModal('order-detail-modal', false);
+
+  // Settings Modal triggers
+  document.getElementById('settings-btn').onclick = () => toggleModal('settings-modal', true);
+  document.getElementById('close-settings-modal').onclick = () => toggleModal('settings-modal', false);
+
+  // Theme Toggle
+  const themeToggleBtn = document.getElementById('theme-toggle-btn');
+  if (themeToggleBtn) {
+    themeToggleBtn.onclick = toggleTheme;
+  }
 
   // Quick Action Buttons
   document.getElementById('qa-add-product').onclick = () => showProductForm();
@@ -692,5 +703,40 @@ async function handleLogout() {
   } catch (e) {
     console.error('Logout error:', e);
     alert('An error occurred during logout.');
+  }
+}
+
+/* ==========================================================================
+   THEME & SETTINGS MANAGEMENT
+   ========================================================================== */
+
+function initTheme() {
+  const savedTheme = localStorage.getItem('theme') || 'dark';
+  if (savedTheme === 'light') {
+    document.body.classList.add('light-theme');
+    updateThemeUI(true);
+  } else {
+    document.body.classList.remove('light-theme');
+    updateThemeUI(false);
+  }
+}
+
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light-theme');
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  updateThemeUI(isLight);
+}
+
+function updateThemeUI(isLight) {
+  const icon = document.querySelector('.theme-toggle-icon');
+  const text = document.querySelector('.theme-toggle-text');
+  if (icon && text) {
+    if (isLight) {
+      icon.textContent = '☀️';
+      text.textContent = 'Light Mode';
+    } else {
+      icon.textContent = '🌙';
+      text.textContent = 'Dark Mode';
+    }
   }
 }

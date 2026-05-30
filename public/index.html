@@ -12,8 +12,8 @@
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
       <div class="sidebar-brand">
-        <span class="brand-logo">🧸</span>
-        <h2>ToTToys <span>Admin</span></h2>
+        <h2><span>Admin</span></h2>
+        <button id="settings-btn" class="settings-btn" title="Settings">⚙️</button>
       </div>
       <nav class="sidebar-menu">
         <a href="#dashboard" class="menu-item active" data-target="dashboard">
@@ -378,6 +378,24 @@
       </div>
       <div class="modal-footer">
         <button class="btn-submit" id="save-order-status-btn">Update Order Status</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div class="modal-overlay" id="settings-modal">
+    <div class="modal-content" style="max-width: 400px;">
+      <div class="modal-header">
+        <h2>Settings</h2>
+        <button class="close-modal" id="close-settings-modal">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 15px 0;">
+        <div class="setting-item" style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-weight: 600; font-size: 1rem;">Theme Preference</span>
+          <button id="theme-toggle-btn" class="theme-toggle-btn">
+            <span class="theme-toggle-icon">🌙</span> <span class="theme-toggle-text">Dark Mode</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
