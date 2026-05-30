@@ -986,8 +986,32 @@ body.light-theme .settings-btn:hover {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.theme-select-btn span {
-  font-size: 1.2rem;
+/* Theme Dot indicators */
+.theme-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--glass-border);
+  transition: transform 0.2s ease;
+}
+
+.theme-select-btn:hover .theme-dot {
+  transform: scale(1.1);
+}
+
+.theme-dot.dark-dot {
+  background: #0f111a;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.theme-dot.light-dot {
+  background: #f8fafc;
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+.theme-dot.grey-dot {
+  background: #eaebee;
+  border-color: rgba(0, 0, 0, 0.15);
 }
 
 .theme-select-btn:hover {
