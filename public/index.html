@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ToTToys | Management Console</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-logo">🧸</span>
+        <h2>ToTToys <span>Admin</span></h2>
+      </div>
+      <nav class="sidebar-menu">
+        <a href="#dashboard" class="menu-item active" data-target="dashboard">
+          <span class="menu-icon">📊</span> Dashboard
+        </a>
+        <a href="#users" class="menu-item" data-target="users">
+          <span class="menu-icon">👥</span> Users
+        </a>
+        <a href="#orders" class="menu-item" data-target="orders">
+          <span class="menu-icon">📦</span> Orders
+        </a>
+        <a href="#offers" class="menu-item" data-target="offers">
+          <span class="menu-icon">🔥</span> Offers & Deals
+        </a>
+        <a href="#products" class="menu-item" data-target="products">
+          <span class="menu-icon">✨</span> Products
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <p>Logged in as Administrator</p>
+        <button id="logout-btn" class="logout-link-btn">🚪 <span>Logout</span></button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <header class="main-header">
+        <h1 id="section-title">Dashboard Overview</h1>
+        <div class="header-actions">
+          <button id="refresh-btn" class="action-btn-secondary">🔄 Refresh Data</button>
+        </div>
+      </header>
+
+      <!-- SECTION: DASHBOARD -->
+      <section id="sec-dashboard" class="content-section active">
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon revenue">💰</div>
+            <div class="stat-info">
+              <h3>Total Revenue</h3>
+              <p id="stat-revenue">₹0.00</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon users">👥</div>
+            <div class="stat-info">
+              <h3>Registered Users</h3>
+              <p id="stat-users">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orders">📦</div>
+            <div class="stat-info">
+              <h3>Total Orders</h3>
+              <p id="stat-orders">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon offers">🔥</div>
+            <div class="stat-info">
+              <h3>Active Offers</h3>
+              <p id="stat-offers">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon products">🧸</div>
+            <div class="stat-info">
+              <h3>Total Products</h3>
+              <p id="stat-products">0</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity Layout -->
+        <div class="dashboard-details-grid">
+          <div class="dashboard-card col-span-2">
+            <div class="card-header">
+              <h2>Recent Orders</h2>
+              <button class="view-all-link" id="goto-orders-link">Manage Orders →</button>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-orders-list">
+                  <!-- Dynamically populated -->
+                  <tr><td colspan="5" class="loading-state">Loading recent orders...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="dashboard-card">
+            <div class="card-header">
+              <h2>Quick Actions</h2>
+            </div>
+            <div class="quick-actions-list">
+              <button class="quick-action-btn" id="qa-add-product">
+                <span class="qa-icon">🧸</span> Add New Toy Product
+              </button>
+              <button class="quick-action-btn" id="qa-add-offer">
+                <span class="qa-icon">🎉</span> Create New Discount Offer
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION: USERS -->
+      <section id="sec-users" class="content-section">
+        <div class="section-card">
+          <div class="search-bar-container">
+            <input type="text" id="user-search" placeholder="🔍 Search users by name or email..." class="form-control">
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Avatar</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>City</th>
+                  <th>Shipping Address</th>
+                  <th>Pin Code</th>
+                </tr>
+              </thead>
+              <tbody id="users-table-body">
+                <!-- Dynamically populated -->
+                <tr><td colspan="7" class="loading-state">Loading users...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION: ORDERS -->
+      <section id="sec-orders" class="content-section">
+        <div class="section-card">
+          <div class="filter-tabs-container">
+            <button class="tab-btn active" data-filter="All">All Orders</button>
+            <button class="tab-btn" data-filter="Pending">Pending</button>
+            <button class="tab-btn" data-filter="Shipped">Shipped</button>
+            <button class="tab-btn" data-filter="Delivered">Delivered</button>
+            <button class="tab-btn" data-filter="Cancelled">Cancelled</button>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer Email</th>
+                  <th>Items Details</th>
+                  <th>Total Amount</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="orders-table-body">
+                <!-- Dynamically populated -->
+                <tr><td colspan="7" class="loading-state">Loading orders...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION: OFFERS -->
+      <section id="sec-offers" class="content-section">
+        <div class="action-bar" style="margin-bottom: 25px;">
+          <button id="add-offer-btn" class="action-btn-primary">➕ Create New Offer</button>
+        </div>
+        <div class="offers-grid" id="offers-list-grid">
+          <!-- Dynamically populated cards -->
+          <div class="loading-state">Loading offers...</div>
+        </div>
+      </section>
+
+      <!-- SECTION: PRODUCTS -->
+      <section id="sec-products" class="content-section">
+        <div class="action-bar" style="margin-bottom: 25px;">
+          <button id="add-product-btn" class="action-btn-primary">➕ Add New Product</button>
+        </div>
+        <div class="section-card">
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Original Price</th>
+                  <th>Associated Offer</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="products-table-body">
+                <!-- Dynamically populated -->
+                <tr><td colspan="6" class="loading-state">Loading products...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ==========================================================================
+     MODALS FOR FORMS
+     ========================================================================== -->
+
+  <!-- PRODUCT MODAL (ADD/EDIT) -->
+  <div class="modal-overlay" id="product-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="product-modal-title">Add New Product</h2>
+        <button class="close-modal" id="close-product-modal">✕</button>
+      </div>
+      <form id="product-form">
+        <input type="hidden" id="product-id">
+        <div class="form-group">
+          <label for="product-name">Product Name *</label>
+          <input type="text" id="product-name" required class="form-control" placeholder="e.g. Electric RC Race Car">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="product-price">Price (INR) *</label>
+            <input type="number" id="product-price" required min="0" step="0.01" class="form-control" placeholder="e.g. 45.00">
+          </div>
+          <div class="form-group">
+            <label for="product-offer">Link to Active Offer</label>
+            <select id="product-offer" class="form-control">
+              <option value="">No Active Promotion (Regular Price)</option>
+              <!-- Dynamically populated offers -->
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="product-image">Image URL</label>
+          <input type="url" id="product-image" class="form-control" placeholder="e.g. https://images.unsplash.com/...">
+        </div>
+        <div class="form-group">
+          <label for="product-desc">Product Description</label>
+          <textarea id="product-desc" rows="4" class="form-control" placeholder="Describe the toy features, age recommendations, STEM characteristics..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" id="cancel-product-form">Cancel</button>
+          <button type="submit" class="btn-submit" id="save-product-btn">Save Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- OFFER MODAL (ADD/EDIT) -->
+  <div class="modal-overlay" id="offer-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="offer-modal-title">Create New Offer</h2>
+        <button class="close-modal" id="close-offer-modal">✕</button>
+      </div>
+      <form id="offer-form">
+        <input type="hidden" id="offer-id">
+        <div class="form-group">
+          <label for="offer-title">Offer Title *</label>
+          <input type="text" id="offer-title" required class="form-control" placeholder="e.g. Super Summer Sale">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="offer-discount">Discount Percentage (%) *</label>
+            <input type="number" id="offer-discount" required min="0" max="100" class="form-control" placeholder="e.g. 20">
+          </div>
+          <div class="form-group">
+            <label for="offer-badge">Badge Text (Displays on Toy card)</label>
+            <input type="text" id="offer-badge" class="form-control" placeholder="e.g. HOT DEAL or 20% OFF">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="offer-banner">Banner Image URL</label>
+          <input type="url" id="offer-banner" class="form-control" placeholder="e.g. https://images.unsplash.com/...">
+        </div>
+        <div class="form-group">
+          <label for="offer-desc">Offer Description</label>
+          <textarea id="offer-desc" rows="3" class="form-control" placeholder="Describe what products qualify or specify duration details..."></textarea>
+        </div>
+        <div class="form-group row-inline">
+          <input type="checkbox" id="offer-active" checked>
+          <label for="offer-active">Offer is Active (Available for customers)</label>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" id="cancel-offer-form">Cancel</button>
+          <button type="submit" class="btn-submit" id="save-offer-btn">Save Offer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ORDER ITEMS DETAIL MODAL -->
+  <div class="modal-overlay" id="order-detail-modal">
+    <div class="modal-content modal-large">
+      <div class="modal-header">
+        <h2>Order Details</h2>
+        <button class="close-modal" id="close-order-modal">✕</button>
+      </div>
+      <div class="order-detail-body">
+        <div class="detail-split">
+          <div>
+            <h3>Customer & Shipping Details</h3>
+            <div class="info-card">
+              <p><strong>Name:</strong> <span id="od-name">-</span></p>
+              <p><strong>Phone:</strong> <span id="od-phone">-</span></p>
+              <p><strong>Address:</strong> <span id="od-address">-</span></p>
+              <p><strong>City:</strong> <span id="od-city">-</span></p>
+              <p><strong>Zipcode:</strong> <span id="od-zipcode">-</span></p>
+              <p><strong>Payment Method:</strong> <span id="od-payment">-</span></p>
+            </div>
+          </div>
+          <div>
+            <h3>Order Status & Totals</h3>
+            <div class="info-card">
+              <p><strong>Order ID:</strong> #NT-<span id="od-id">-</span></p>
+              <p><strong>Order Date:</strong> <span id="od-date">-</span></p>
+              <p><strong>Total Amount:</strong> <span id="od-total" style="color: var(--accent-cyan); font-weight: bold;">₹0.00</span></p>
+              <div class="form-group" style="margin-top: 15px;">
+                <label for="od-status-select" style="font-size: 0.8rem; font-weight: bold;">Change Status</label>
+                <select id="od-status-select" class="form-control" style="margin-top: 5px;">
+                  <option value="Pending">Pending</option>
+                  <option value="Shipped">Shipped</option>
+                  <option value="Delivered">Delivered</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top: 25px;">
+          <h3>Items Summary</h3>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Price</th>
+                  <th>Quantity</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody id="od-items-tbody">
+                <!-- Dynamically populated items -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-submit" id="save-order-status-btn">Update Order Status</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
