@@ -121,11 +121,10 @@ function initEventListeners() {
   document.getElementById('settings-btn').onclick = () => toggleModal('settings-modal', true);
   document.getElementById('close-settings-modal').onclick = () => toggleModal('settings-modal', false);
 
-  // Theme Toggle
-  const themeToggleBtn = document.getElementById('theme-toggle-btn');
-  if (themeToggleBtn) {
-    themeToggleBtn.onclick = toggleTheme;
-  }
+  // Theme Options Click Listeners
+  document.querySelectorAll('.theme-select-btn').forEach(btn => {
+    btn.onclick = () => setTheme(btn.getAttribute('data-theme'));
+  });
 
   // Quick Action Buttons
   document.getElementById('qa-add-product').onclick = () => showProductForm();
@@ -712,31 +711,29 @@ async function handleLogout() {
 
 function initTheme() {
   const savedTheme = localStorage.getItem('theme') || 'dark';
-  if (savedTheme === 'light') {
+  setTheme(savedTheme);
+}
+
+function setTheme(theme) {
+  // Remove all theme classes
+  document.body.classList.remove('light-theme', 'grey-theme');
+  
+  // Add selected theme class
+  if (theme === 'light') {
     document.body.classList.add('light-theme');
-    updateThemeUI(true);
-  } else {
-    document.body.classList.remove('light-theme');
-    updateThemeUI(false);
+  } else if (theme === 'grey') {
+    document.body.classList.add('grey-theme');
   }
-}
-
-function toggleTheme() {
-  const isLight = document.body.classList.toggle('light-theme');
-  localStorage.setItem('theme', isLight ? 'light' : 'dark');
-  updateThemeUI(isLight);
-}
-
-function updateThemeUI(isLight) {
-  const icon = document.querySelector('.theme-toggle-icon');
-  const text = document.querySelector('.theme-toggle-text');
-  if (icon && text) {
-    if (isLight) {
-      icon.textContent = '☀️';
-      text.textContent = 'Light Mode';
+  
+  // Save preference
+  localStorage.setItem('theme', theme);
+  
+  // Update button active state
+  document.querySelectorAll('.theme-select-btn').forEach(btn => {
+    if (btn.getAttribute('data-theme') === theme) {
+      btn.classList.add('active');
     } else {
-      icon.textContent = '🌙';
-      text.textContent = 'Dark Mode';
+      btn.classList.remove('active');
     }
-  }
+  });
 }
