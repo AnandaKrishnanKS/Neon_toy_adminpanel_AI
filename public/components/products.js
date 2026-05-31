@@ -3,7 +3,7 @@ import { toggleModal, updateUploadPreview } from './utils.js';
 
 export async function loadProducts() {
   const container = document.getElementById('products-table-body');
-  container.innerHTML = `<tr><td colspan="6" class="loading-state">Loading product inventory...</td></tr>`;
+  container.innerHTML = `<tr><td colspan="7" class="loading-state">Loading product inventory...</td></tr>`;
 
   // Clear search field on fresh reload
   const searchInput = document.getElementById('product-search');
@@ -14,7 +14,7 @@ export async function loadProducts() {
     state.productsData = await res.json();
     renderProducts();
   } catch (error) {
-    container.innerHTML = `<tr><td colspan="6" class="loading-state" style="color: var(--accent-cancelled)">Error loading products.</td></tr>`;
+    container.innerHTML = `<tr><td colspan="7" class="loading-state" style="color: var(--accent-cancelled)">Error loading products.</td></tr>`;
   }
 }
 
@@ -23,7 +23,7 @@ export function renderProducts(products = state.productsData) {
   container.innerHTML = '';
 
   if (products.length === 0) {
-    container.innerHTML = `<tr><td colspan="6" class="loading-state">No products found.</td></tr>`;
+    container.innerHTML = `<tr><td colspan="7" class="loading-state">No products found.</td></tr>`;
     return;
   }
 
@@ -33,12 +33,23 @@ export function renderProducts(products = state.productsData) {
       offerDisplay = `<span style="color: var(--accent-pink); font-weight: 600;">🔥 ${p.offer_title} (${p.discount_percentage}% off)</span>`;
     }
 
+    let stockDisplay = '';
+    const stock = p.stock_count !== undefined && p.stock_count !== null ? parseInt(p.stock_count) : 0;
+    if (stock === 0) {
+      stockDisplay = `<span class="stock-badge out">Out of Stock</span>`;
+    } else if (stock < 10) {
+      stockDisplay = `<span class="stock-badge low">Low Stock (${stock})</span>`;
+    } else {
+      stockDisplay = `<span class="stock-badge in">${stock} units</span>`;
+    }
+
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td><img src="${p.image_url || 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=500&q=80'}" class="product-image-cell" alt="${p.name}"></td>
       <td><code>#NT-${p.id.toString().padStart(4, '0')}</code></td>
       <td><strong>${p.name}</strong></td>
       <td>₹${parseFloat(p.price).toFixed(2)}</td>
+      <td>${stockDisplay}</td>
       <td>${offerDisplay}</td>
       <td>
         <button class="edit-btn" onclick="editProduct(${p.id})" title="Edit Product">✏️</button>
@@ -98,6 +109,7 @@ export async function showProductForm(id = null) {
     document.getElementById('product-id').value = p.id;
     document.getElementById('product-name').value = p.name;
     document.getElementById('product-price').value = p.price;
+    document.getElementById('product-stock').value = p.stock_count !== undefined && p.stock_count !== null ? p.stock_count : 0;
     document.getElementById('product-offer').value = p.offer_id || '';
     document.getElementById('product-desc').value = p.description || '';
     
@@ -107,6 +119,7 @@ export async function showProductForm(id = null) {
   } else {
     title.textContent = 'Add New Product';
     document.getElementById('product-id').value = '';
+    document.getElementById('product-stock').value = 0;
     
     // Clear the image preview UI
     updateUploadPreview('product', []);
@@ -129,6 +142,7 @@ export async function handleProductSubmit(e) {
   const data = {
     name: document.getElementById('product-name').value,
     price: parseFloat(document.getElementById('product-price').value),
+    stock_count: parseInt(document.getElementById('product-stock').value) || 0,
     image_url: document.getElementById('product-image').value, // Backward compatibility
     images: images,
     offer_id: document.getElementById('product-offer').value || null,

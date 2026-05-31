@@ -610,6 +610,62 @@ body.grey-theme .pay-badge.cod {
   color: #d97706;
 }
 
+/* Stock Badges */
+.stock-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+  border: 1px solid transparent;
+  width: fit-content;
+}
+
+.stock-badge.out {
+  background: var(--status-cancelled-bg);
+  color: var(--status-cancelled);
+  border-color: rgba(244, 63, 94, 0.2);
+}
+
+.stock-badge.low {
+  background: var(--status-pending-bg);
+  color: var(--status-pending);
+  border-color: rgba(245, 158, 11, 0.2);
+}
+
+.stock-badge.in {
+  background: var(--status-delivered-bg);
+  color: var(--status-delivered);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+body.light-theme .stock-badge.out {
+  background: rgba(244, 63, 94, 0.08);
+  color: #e11d48;
+}
+body.light-theme .stock-badge.low {
+  background: rgba(245, 158, 11, 0.08);
+  color: #d97706;
+}
+body.light-theme .stock-badge.in {
+  background: rgba(16, 185, 129, 0.08);
+  color: #059669;
+}
+
+body.grey-theme .stock-badge.out {
+  background: rgba(244, 63, 94, 0.08);
+  color: #e11d48;
+}
+body.grey-theme .stock-badge.low {
+  background: rgba(245, 158, 11, 0.08);
+  color: #d97706;
+}
+body.grey-theme .stock-badge.in {
+  background: rgba(16, 185, 129, 0.08);
+  color: #059669;
+}
+
 /* Table Action Buttons */
 .edit-btn, .delete-btn, .details-btn {
   background: transparent;

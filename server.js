@@ -85,6 +85,14 @@ pool.query('SELECT NOW()', (err, res) => {
         console.error('❌ Database migration failed (adding images column):', migrateErr);
       } else {
         console.log('✅ Database migration successful (images column ready)!');
+        // Add stock_count column
+        pool.query('ALTER TABLE products ADD COLUMN IF NOT EXISTS stock_count INTEGER DEFAULT 0;', (migrateStockErr, migrateStockRes) => {
+          if (migrateStockErr) {
+            console.error('❌ Database migration failed (adding stock_count column):', migrateStockErr);
+          } else {
+            console.log('✅ Database migration successful (stock_count column ready)!');
+          }
+        });
       }
     });
   }
@@ -280,15 +288,23 @@ app.get('/api/products', async (req, res) => {
 });
 
 app.post('/api/products', async (req, res) => {
-  const { name, description, price, image_url, offer_id, images } = req.body;
+  const { name, description, price, image_url, offer_id, images, stock_count } = req.body;
   if (!name || price === undefined) {
     return res.status(400).json({ error: 'Name and price are required' });
   }
   try {
     const result = await dbQuery(
-      `INSERT INTO products (name, description, price, image_url, offer_id, images)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [name, description || '', price, image_url || '', offer_id || null, images || []]
+      `INSERT INTO products (name, description, price, image_url, offer_id, images, stock_count)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [
+        name,
+        description || '',
+        price,
+        image_url || '',
+        offer_id || null,
+        images || [],
+        stock_count !== undefined && stock_count !== null ? parseInt(stock_count) : 0
+      ]
     );
     res.status(201).json(result.rows[0]);
   } catch (error) {
@@ -299,16 +315,25 @@ app.post('/api/products', async (req, res) => {
 
 app.put('/api/products/:id', async (req, res) => {
   const { id } = req.params;
-  const { name, description, price, image_url, offer_id, images } = req.body;
+  const { name, description, price, image_url, offer_id, images, stock_count } = req.body;
   if (!name || price === undefined) {
     return res.status(400).json({ error: 'Name and price are required' });
   }
   try {
     const result = await dbQuery(
       `UPDATE products 
-       SET name = $1, description = $2, price = $3, image_url = $4, offer_id = $5, images = $6
-       WHERE id = $7 RETURNING *`,
-      [name, description || '', price, image_url || '', offer_id || null, images || [], id]
+       SET name = $1, description = $2, price = $3, image_url = $4, offer_id = $5, images = $6, stock_count = $7
+       WHERE id = $8 RETURNING *`,
+      [
+        name,
+        description || '',
+        price,
+        image_url || '',
+        offer_id || null,
+        images || [],
+        stock_count !== undefined && stock_count !== null ? parseInt(stock_count) : 0,
+        id
+      ]
     );
     if (result.rowCount === 0) {
       return res.status(404).json({ error: 'Product not found' });
