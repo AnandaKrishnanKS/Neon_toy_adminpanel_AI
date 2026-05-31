@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ToTToys | Management Console</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=2.1">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -17,19 +17,19 @@
       </div>
       <nav class="sidebar-menu">
         <a href="#dashboard" class="menu-item active" data-target="dashboard">
-          <span class="menu-icon">📊</span> Dashboard
+          <span class="menu-icon">📊</span> <span>Dashboard</span>
         </a>
         <a href="#users" class="menu-item" data-target="users">
-          <span class="menu-icon">👥</span> Users
+          <span class="menu-icon">👥</span> <span>Users</span>
         </a>
         <a href="#orders" class="menu-item" data-target="orders">
-          <span class="menu-icon">📦</span> Orders
+          <span class="menu-icon">📦</span> <span>Orders</span>
         </a>
         <a href="#offers" class="menu-item" data-target="offers">
-          <span class="menu-icon">🔥</span> Offers & Deals
+          <span class="menu-icon">🔥</span> <span>Offers & Deals</span>
         </a>
         <a href="#products" class="menu-item" data-target="products">
-          <span class="menu-icon">✨</span> Products
+          <span class="menu-icon">✨</span> <span>Products</span>
         </a>
       </nav>
       <div class="sidebar-footer">
@@ -41,7 +41,10 @@
     <!-- Main Content Area -->
     <main class="main-content">
       <header class="main-header">
-        <h1 id="section-title">Dashboard Overview</h1>
+        <div class="header-left">
+          <button id="sidebar-toggle" class="sidebar-toggle-btn" aria-label="Toggle Navigation">☰</button>
+          <h1 id="section-title">Dashboard Overview</h1>
+        </div>
         <div class="header-actions">
           <button id="refresh-btn" class="action-btn-secondary">🔄 Refresh Data</button>
         </div>
@@ -102,13 +105,14 @@
                     <th>Order ID</th>
                     <th>Customer</th>
                     <th>Total</th>
+                    <th>Payment</th>
                     <th>Status</th>
                     <th>Date</th>
                   </tr>
                 </thead>
                 <tbody id="recent-orders-list">
                   <!-- Dynamically populated -->
-                  <tr><td colspan="5" class="loading-state">Loading recent orders...</td></tr>
+                  <tr><td colspan="6" class="loading-state">Loading recent orders...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -164,9 +168,11 @@
           <div class="filter-tabs-container">
             <button class="tab-btn active" data-filter="All">All Orders</button>
             <button class="tab-btn" data-filter="Pending">Pending</button>
+            <button class="tab-btn" data-filter="Processing">Processing</button>
             <button class="tab-btn" data-filter="Shipped">Shipped</button>
             <button class="tab-btn" data-filter="Delivered">Delivered</button>
             <button class="tab-btn" data-filter="Cancelled">Cancelled</button>
+            <button class="tab-btn" data-filter="Refunded">Refunded</button>
           </div>
           <div class="table-container">
             <table>
@@ -176,6 +182,7 @@
                   <th>Customer Email</th>
                   <th>Items Details</th>
                   <th>Total Amount</th>
+                  <th>Payment</th>
                   <th>Date</th>
                   <th>Status</th>
                   <th>Actions</th>
@@ -183,7 +190,7 @@
               </thead>
               <tbody id="orders-table-body">
                 <!-- Dynamically populated -->
-                <tr><td colspan="7" class="loading-state">Loading orders...</td></tr>
+                <tr><td colspan="8" class="loading-state">Loading orders...</td></tr>
               </tbody>
             </table>
           </div>
@@ -203,8 +210,11 @@
 
       <!-- SECTION: PRODUCTS -->
       <section id="sec-products" class="content-section">
-        <div class="action-bar" style="margin-bottom: 25px;">
-          <button id="add-product-btn" class="action-btn-primary">➕ Add New Product</button>
+        <div class="action-bar" style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap;">
+          <button id="add-product-btn" class="action-btn-primary" style="margin-bottom: 0;">➕ Add New Product</button>
+          <div class="search-bar-container" style="flex: 1; max-width: 400px; margin-bottom: 0;">
+            <input type="text" id="product-search" placeholder="🔍 Search products by name, description, ID..." class="form-control">
+          </div>
         </div>
         <div class="section-card">
           <div class="table-container">
@@ -261,8 +271,25 @@
           </div>
         </div>
         <div class="form-group">
-          <label for="product-image">Image URL</label>
-          <input type="url" id="product-image" class="form-control" placeholder="e.g. https://images.unsplash.com/...">
+          <label>Product Images</label>
+          <div class="image-upload-wrapper">
+            <input type="hidden" id="product-image">
+            <input type="hidden" id="product-images">
+            <div class="upload-dropzone" id="product-upload-dropzone">
+              <input type="file" id="product-image-file" accept="image/*" class="file-input-hidden" multiple>
+              <div class="dropzone-prompt">
+                <span class="upload-icon">📤</span>
+                <span class="upload-text">Click or drag & drop to upload product images</span>
+                <span class="upload-subtext">PNG, JPG, JPEG up to 5MB (multiple allowed)</span>
+              </div>
+              <div class="dropzone-preview-grid hidden" id="product-images-preview-grid">
+                <!-- Dynamically populated previews -->
+              </div>
+              <div class="upload-progress-bar hidden" id="product-upload-progress">
+                <span class="spinner"></span> <span class="progress-text">Uploading to Cloudinary...</span>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="form-group">
           <label for="product-desc">Product Description</label>
@@ -300,8 +327,25 @@
           </div>
         </div>
         <div class="form-group">
-          <label for="offer-banner">Banner Image URL</label>
-          <input type="url" id="offer-banner" class="form-control" placeholder="e.g. https://images.unsplash.com/...">
+          <label>Banner Image</label>
+          <div class="image-upload-wrapper">
+            <input type="hidden" id="offer-banner">
+            <div class="upload-dropzone" id="offer-upload-dropzone">
+              <input type="file" id="offer-banner-file" accept="image/*" class="file-input-hidden">
+              <div class="dropzone-prompt">
+                <span class="upload-icon">📤</span>
+                <span class="upload-text">Click or drag & drop to upload banner</span>
+                <span class="upload-subtext">PNG, JPG, JPEG up to 5MB</span>
+              </div>
+              <div class="dropzone-preview hidden" id="offer-banner-preview-container">
+                <img src="" id="offer-banner-preview" alt="Preview">
+                <button type="button" class="remove-image-btn" id="remove-offer-banner">✕ Remove</button>
+              </div>
+              <div class="upload-progress-bar hidden" id="offer-upload-progress">
+                <span class="spinner"></span> <span class="progress-text">Uploading to Cloudinary...</span>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="form-group">
           <label for="offer-desc">Offer Description</label>
@@ -349,6 +393,7 @@
                 <label for="od-status-select" style="font-size: 0.8rem; font-weight: bold;">Change Status</label>
                 <select id="od-status-select" class="form-control" style="margin-top: 5px;">
                   <option value="Pending">Pending</option>
+                  <option value="Processing">Processing</option>
                   <option value="Shipped">Shipped</option>
                   <option value="Delivered">Delivered</option>
                   <option value="Cancelled">Cancelled</option>
@@ -408,6 +453,6 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>

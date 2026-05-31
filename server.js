@@ -3,6 +3,7 @@ const express = require('express');
 const { Pool } = require('pg');
 const path = require('path');
 const cookieParser = require('cookie-parser');
+const cloudinary = require('cloudinary').v2;
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -10,13 +11,33 @@ const PORT = process.env.PORT || 3001;
 // Session token generated dynamically at startup for security
 const SESSION_TOKEN = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
+// Configure Cloudinary
+const isCloudinaryUrlSet = !!process.env.CLOUDINARY_URL;
+const isCloudinaryConfigSet = !!(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
+
+if (isCloudinaryUrlSet) {
+  // SDK automatically picks up CLOUDINARY_URL from process.env
+  console.log('✅ Cloudinary configured successfully (via CLOUDINARY_URL)!');
+} else if (isCloudinaryConfigSet) {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+  });
+  console.log('✅ Cloudinary configured successfully (via individual credentials)!');
+} else {
+  console.warn('⚠️ Warning: Cloudinary environment variables (CLOUDINARY_URL or CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET) are missing. Image uploads will fail.');
+}
+
 // Middleware
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
 // Serve CSS and JS assets publicly
 app.use('/styles.css', express.static(path.join(__dirname, 'public', 'styles.css')));
 app.use('/app.js', express.static(path.join(__dirname, 'public', 'app.js')));
+app.use('/components', express.static(path.join(__dirname, 'public', 'components')));
 
 // Serve login page route
 app.get('/login', (req, res) => {
@@ -58,6 +79,14 @@ pool.query('SELECT NOW()', (err, res) => {
     console.error('❌ Database connection failed:', err);
   } else {
     console.log('✅ Database connected successfully!');
+    // Run database migration to support multiple images
+    pool.query('ALTER TABLE products ADD COLUMN IF NOT EXISTS images TEXT[];', (migrateErr, migrateRes) => {
+      if (migrateErr) {
+        console.error('❌ Database migration failed (adding images column):', migrateErr);
+      } else {
+        console.log('✅ Database migration successful (images column ready)!');
+      }
+    });
   }
 });
 
@@ -108,8 +137,8 @@ app.get('/api/stats', async (req, res) => {
     const productsCount = await dbQuery('SELECT COUNT(*) FROM products');
     const offersCount = await dbQuery('SELECT COUNT(*) FROM offers WHERE is_active = true');
     
-    // Revenue sum (excluding cancelled orders)
-    const revenueSum = await dbQuery("SELECT SUM(total_amount) FROM orders WHERE status != 'Cancelled'");
+    // Revenue sum (excluding cancelled and refunded orders)
+    const revenueSum = await dbQuery("SELECT SUM(total_amount) FROM orders WHERE status NOT IN ('Cancelled', 'Refunded')");
 
     res.json({
       users: parseInt(usersCount.rows[0].count),
@@ -251,15 +280,15 @@ app.get('/api/products', async (req, res) => {
 });
 
 app.post('/api/products', async (req, res) => {
-  const { name, description, price, image_url, offer_id } = req.body;
+  const { name, description, price, image_url, offer_id, images } = req.body;
   if (!name || price === undefined) {
     return res.status(400).json({ error: 'Name and price are required' });
   }
   try {
     const result = await dbQuery(
-      `INSERT INTO products (name, description, price, image_url, offer_id)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [name, description || '', price, image_url || '', offer_id || null]
+      `INSERT INTO products (name, description, price, image_url, offer_id, images)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [name, description || '', price, image_url || '', offer_id || null, images || []]
     );
     res.status(201).json(result.rows[0]);
   } catch (error) {
@@ -270,16 +299,16 @@ app.post('/api/products', async (req, res) => {
 
 app.put('/api/products/:id', async (req, res) => {
   const { id } = req.params;
-  const { name, description, price, image_url, offer_id } = req.body;
+  const { name, description, price, image_url, offer_id, images } = req.body;
   if (!name || price === undefined) {
     return res.status(400).json({ error: 'Name and price are required' });
   }
   try {
     const result = await dbQuery(
       `UPDATE products 
-       SET name = $1, description = $2, price = $3, image_url = $4, offer_id = $5
-       WHERE id = $6 RETURNING *`,
-      [name, description || '', price, image_url || '', offer_id || null, id]
+       SET name = $1, description = $2, price = $3, image_url = $4, offer_id = $5, images = $6
+       WHERE id = $7 RETURNING *`,
+      [name, description || '', price, image_url || '', offer_id || null, images || [], id]
     );
     if (result.rowCount === 0) {
       return res.status(404).json({ error: 'Product not found' });
@@ -302,6 +331,31 @@ app.delete('/api/products/:id', async (req, res) => {
   } catch (error) {
     console.error('Error deleting product:', error);
     res.status(500).json({ error: 'Failed to delete product' });
+  }
+});
+
+// 6. IMAGE UPLOAD ENDPOINT (CLOUDINARY)
+app.post('/api/upload', async (req, res) => {
+  try {
+    const { image } = req.body;
+    if (!image) {
+      return res.status(400).json({ error: 'No image data provided' });
+    }
+
+    if (!process.env.CLOUDINARY_URL && !(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET)) {
+      return res.status(503).json({ error: 'Cloudinary is not configured on the server. Please check your environment variables.' });
+    }
+
+    // Upload to Cloudinary. It will auto-detect base64 data-URIs.
+    const uploadResponse = await cloudinary.uploader.upload(image, {
+      folder: 'toy_adminpanel',
+      resource_type: 'auto'
+    });
+
+    res.json({ url: uploadResponse.secure_url });
+  } catch (error) {
+    console.error('Cloudinary upload error:', error);
+    res.status(500).json({ error: error.message || 'Failed to upload image to Cloudinary' });
   }
 });
 
