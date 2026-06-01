@@ -1,6 +1,6 @@
 import { loadCurrentSection } from './navigation.js';
 import { filterUsers } from './users.js';
-import { renderOrders, handleOrderStatusSubmit } from './orders.js';
+import { renderOrders, handleOrderStatusSubmit, handleOrderRefund, filterOrders, handlePrintInvoice } from './orders.js';
 import { toggleModal, setupImageUpload } from './utils.js';
 import { setTheme } from './theme.js';
 import { showProductForm, handleProductSubmit, filterProducts } from './products.js';
@@ -40,6 +40,9 @@ export function initEventListeners() {
   // Products Section Search
   document.getElementById('product-search').addEventListener('input', filterProducts);
 
+  // Orders Section Search
+  document.getElementById('order-search').addEventListener('input', filterOrders);
+
   // Orders Section Tab Filters
   const tabs = document.querySelectorAll('.tab-btn');
   tabs.forEach(tab => {
@@ -78,6 +81,11 @@ export function initEventListeners() {
   document.getElementById('product-form').onsubmit = handleProductSubmit;
   document.getElementById('offer-form').onsubmit = handleOfferSubmit;
   document.getElementById('save-order-status-btn').onclick = handleOrderStatusSubmit;
+  document.getElementById('refund-order-btn').onclick = handleOrderRefund;
+  const printInvoiceBtn = document.getElementById('print-invoice-btn');
+  if (printInvoiceBtn) {
+    printInvoiceBtn.onclick = handlePrintInvoice;
+  }
 
   // Logout Button
   const logoutBtn = document.getElementById('logout-btn');
