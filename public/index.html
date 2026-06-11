@@ -31,6 +31,9 @@
         <a href="#products" class="menu-item" data-target="products">
           <span class="menu-icon">✨</span> <span>Products</span>
         </a>
+        <a href="#terms" class="menu-item" data-target="terms">
+          <span class="menu-icon">📄</span> <span>Terms & Conditions</span>
+        </a>
       </nav>
       <div class="sidebar-footer">
         <p>Logged in as Administrator</p>
@@ -239,6 +242,36 @@
               </tbody>
             </table>
           </div>
+        </div>
+      </section>
+
+      <!-- SECTION: TERMS & CONDITIONS -->
+      <section id="sec-terms" class="content-section">
+        <div class="section-card terms-card-layout">
+          <div class="terms-card-header">
+            <div>
+              <h2 class="terms-card-title">Terms & Conditions Editor</h2>
+              <p class="terms-card-subtitle">Manage the legal agreements displayed on the main customer storefront.</p>
+            </div>
+            <div id="terms-last-updated" class="terms-timestamp-badge">
+              Last updated: Loading...
+            </div>
+          </div>
+          <form id="terms-form" class="terms-edit-form">
+            <div class="form-group terms-editor-group">
+              <label for="terms-editor" class="terms-editor-label">
+                <span>Agreement Content</span>
+                <span class="format-help">Markdown elements like # Heading, **Bold**, and *Bullets* are supported</span>
+              </label>
+              <textarea id="terms-editor" class="form-control terms-textarea" placeholder="Enter terms and conditions here..." required></textarea>
+            </div>
+            <div class="terms-footer">
+              <span id="terms-status-message" class="terms-status-msg"></span>
+              <button type="submit" class="action-btn-primary save-terms-button" id="save-terms-btn">
+                <span class="save-icon">💾</span> Save & Update Terms
+              </button>
+            </div>
+          </form>
         </div>
       </section>
     </main>

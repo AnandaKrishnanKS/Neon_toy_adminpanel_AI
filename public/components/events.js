@@ -5,6 +5,7 @@ import { toggleModal, setupImageUpload } from './utils.js';
 import { setTheme } from './theme.js';
 import { showProductForm, handleProductSubmit, filterProducts } from './products.js';
 import { showOfferForm, handleOfferSubmit } from './offers.js';
+import { handleTermsSubmit } from './terms.js';
 
 export function initEventListeners() {
   // Initialize Cloudinary Dropzones
@@ -80,6 +81,7 @@ export function initEventListeners() {
   // Form Submissions
   document.getElementById('product-form').onsubmit = handleProductSubmit;
   document.getElementById('offer-form').onsubmit = handleOfferSubmit;
+  document.getElementById('terms-form').onsubmit = handleTermsSubmit;
   document.getElementById('save-order-status-btn').onclick = handleOrderStatusSubmit;
   document.getElementById('refund-order-btn').onclick = handleOrderRefund;
   const printInvoiceBtn = document.getElementById('print-invoice-btn');

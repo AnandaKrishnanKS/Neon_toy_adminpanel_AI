@@ -4,6 +4,7 @@ import { loadUsers } from './users.js';
 import { loadOrders } from './orders.js';
 import { loadOffers } from './offers.js';
 import { loadProducts } from './products.js';
+import { loadTerms } from './terms.js';
 
 export function initNavigation() {
   const menuItems = document.querySelectorAll('.menu-item');
@@ -26,7 +27,8 @@ export function initNavigation() {
         'users': 'Registered User Accounts',
         'orders': 'Customer Orders Management',
         'offers': 'Active Deals & Coupons',
-        'products': 'Store Inventory Products'
+        'products': 'Store Inventory Products',
+        'terms': 'Terms & Conditions'
       };
       document.getElementById('section-title').textContent = titleMap[target] || 'ToTToys Console';
 
@@ -63,5 +65,7 @@ export async function loadCurrentSection() {
       return loadOffers();
     case 'products':
       return loadProducts();
+    case 'terms':
+      return loadTerms();
   }
 }

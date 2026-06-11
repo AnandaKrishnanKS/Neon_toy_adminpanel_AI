@@ -91,6 +91,20 @@ pool.query('SELECT NOW()', (err, res) => {
             console.error('❌ Database migration failed (adding stock_count column):', migrateStockErr);
           } else {
             console.log('✅ Database migration successful (stock_count column ready)!');
+            // Create terms_conditions table
+            pool.query(`
+              CREATE TABLE IF NOT EXISTS terms_conditions (
+                id SERIAL PRIMARY KEY,
+                content TEXT NOT NULL,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+              );
+            `, (migrateTermsErr, migrateTermsRes) => {
+              if (migrateTermsErr) {
+                console.error('❌ Database migration failed (creating terms_conditions table):', migrateTermsErr);
+              } else {
+                console.log('✅ Database migration successful (terms_conditions table ready)!');
+              }
+            });
           }
         });
       }
@@ -381,6 +395,37 @@ app.post('/api/upload', async (req, res) => {
   } catch (error) {
     console.error('Cloudinary upload error:', error);
     res.status(500).json({ error: error.message || 'Failed to upload image to Cloudinary' });
+  }
+});
+
+// 7. TERMS & CONDITIONS ENDPOINTS
+app.get('/api/terms', async (req, res) => {
+  try {
+    const result = await dbQuery('SELECT content, updated_at FROM terms_conditions ORDER BY id DESC LIMIT 1');
+    if (result.rows.length === 0) {
+      return res.json({ content: '', updated_at: null });
+    }
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error fetching terms:', error);
+    res.status(500).json({ error: 'Failed to fetch terms and conditions' });
+  }
+});
+
+app.post('/api/terms', async (req, res) => {
+  const { content } = req.body;
+  if (content === undefined) {
+    return res.status(400).json({ error: 'Content is required' });
+  }
+  try {
+    const result = await dbQuery(
+      'INSERT INTO terms_conditions (content, updated_at) VALUES ($1, NOW()) RETURNING *',
+      [content]
+    );
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error saving terms:', error);
+    res.status(500).json({ error: 'Failed to save terms and conditions' });
   }
 });
 

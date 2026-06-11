@@ -1702,4 +1702,110 @@ body.light-theme .spinner, body.grey-theme .spinner {
   }
 }
 
+/* Terms & Conditions Editor Styling */
+.terms-card-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.terms-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 15px;
+  border-bottom: 1px solid var(--glass-border);
+  padding-bottom: 20px;
+}
+
+.terms-card-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  background: linear-gradient(to right, var(--accent-pink), var(--accent-cyan));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.terms-card-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.terms-timestamp-badge {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent-cyan);
+}
+
+.terms-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.terms-editor-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.terms-editor-label {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 0.95rem;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.terms-editor-label .format-help {
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.terms-textarea {
+  min-height: 450px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  resize: vertical;
+  padding: 20px;
+}
+
+.terms-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.terms-status-msg {
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: opacity 0.3s ease;
+}
+
+.terms-status-msg.success {
+  color: var(--status-delivered);
+}
+
+.terms-status-msg.error {
+  color: var(--status-cancelled);
+}
+
+.save-terms-button {
+  min-width: 180px;
+  justify-content: center;
+}
+
+
 
