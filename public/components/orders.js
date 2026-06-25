@@ -496,8 +496,8 @@ function generateInvoiceHtml(order) {
             <div class="info-card">
               <p><strong>Name:</strong> ${shipping.name || '—'}</p>
               <p><strong>Phone:</strong> ${shipping.phone || '—'}</p>
-              <p><strong>Address:</strong> ${shipping.address || '—'}</p>
-              <p><strong>City:</strong> ${shipping.city || '—'}</p>
+              <p><strong>Address:</strong> ${shipping.address || '—'}${shipping.landmark ? `, ${shipping.landmark}` : ''}</p>
+              <p><strong>Location:</strong> ${[shipping.city, shipping.district, shipping.state].filter(Boolean).join(', ') || '—'}</p>
               <p><strong>Zipcode:</strong> ${shipping.zipcode || '—'}</p>
             </div>
           </div>
