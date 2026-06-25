@@ -285,6 +285,17 @@ app.delete('/api/offers/:id', async (req, res) => {
   }
 });
 
+// 4.5. CATEGORIES ENDPOINT
+app.get('/api/categories', async (req, res) => {
+  try {
+    const result = await dbQuery("SELECT DISTINCT category FROM products WHERE category IS NOT NULL AND category != '' ORDER BY category ASC");
+    res.json(result.rows.map(r => r.category));
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({ error: 'Failed to fetch categories' });
+  }
+});
+
 // 5. PRODUCTS ENDPOINTS
 app.get('/api/products', async (req, res) => {
   try {
@@ -302,14 +313,14 @@ app.get('/api/products', async (req, res) => {
 });
 
 app.post('/api/products', async (req, res) => {
-  const { name, description, price, image_url, offer_id, images, stock_count } = req.body;
+  const { name, description, price, image_url, offer_id, images, stock_count, category } = req.body;
   if (!name || price === undefined) {
     return res.status(400).json({ error: 'Name and price are required' });
   }
   try {
     const result = await dbQuery(
-      `INSERT INTO products (name, description, price, image_url, offer_id, images, stock_count)
-       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      `INSERT INTO products (name, description, price, image_url, offer_id, images, stock_count, category)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
       [
         name,
         description || '',
@@ -317,7 +328,8 @@ app.post('/api/products', async (req, res) => {
         image_url || '',
         offer_id || null,
         images || [],
-        stock_count !== undefined && stock_count !== null ? parseInt(stock_count) : 0
+        stock_count !== undefined && stock_count !== null ? parseInt(stock_count) : 0,
+        category || ''
       ]
     );
     res.status(201).json(result.rows[0]);
@@ -329,15 +341,15 @@ app.post('/api/products', async (req, res) => {
 
 app.put('/api/products/:id', async (req, res) => {
   const { id } = req.params;
-  const { name, description, price, image_url, offer_id, images, stock_count } = req.body;
+  const { name, description, price, image_url, offer_id, images, stock_count, category } = req.body;
   if (!name || price === undefined) {
     return res.status(400).json({ error: 'Name and price are required' });
   }
   try {
     const result = await dbQuery(
       `UPDATE products 
-       SET name = $1, description = $2, price = $3, image_url = $4, offer_id = $5, images = $6, stock_count = $7
-       WHERE id = $8 RETURNING *`,
+       SET name = $1, description = $2, price = $3, image_url = $4, offer_id = $5, images = $6, stock_count = $7, category = $8
+       WHERE id = $9 RETURNING *`,
       [
         name,
         description || '',
@@ -346,6 +358,7 @@ app.put('/api/products/:id', async (req, res) => {
         offer_id || null,
         images || [],
         stock_count !== undefined && stock_count !== null ? parseInt(stock_count) : 0,
+        category || '',
         id
       ]
     );

@@ -667,6 +667,30 @@ body.grey-theme .stock-badge.in {
   color: #059669;
 }
 
+/* Category Badge */
+.category-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  border: 1px solid var(--glass-border);
+  text-align: center;
+  width: fit-content;
+}
+
+body.light-theme .category-badge {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--text-secondary);
+}
+
+body.grey-theme .category-badge {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--text-secondary);
+}
+
 /* Table Action Buttons */
 .edit-btn, .delete-btn, .details-btn {
   background: transparent;

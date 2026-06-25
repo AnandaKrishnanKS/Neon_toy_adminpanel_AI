@@ -30,7 +30,7 @@ export function initNavigation() {
         'products': 'Store Inventory Products',
         'terms': 'Terms & Conditions'
       };
-      document.getElementById('section-title').textContent = titleMap[target] || 'ToTToys Console';
+      document.getElementById('section-title').textContent = titleMap[target] || 'ToTStore Console';
 
       state.currentSection = target;
       window.location.hash = target;

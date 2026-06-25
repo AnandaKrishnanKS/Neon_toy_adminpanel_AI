@@ -1,7 +1,7 @@
 {
-  "name": "tottoys-admin-panel",
+  "name": "totstore-admin-panel",
   "version": "1.0.0",
-  "description": "Standalone Admin Panel for ToTToys",
+  "description": "Standalone Admin Panel for ToTStore",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

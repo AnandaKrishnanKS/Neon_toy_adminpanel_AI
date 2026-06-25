@@ -480,7 +480,7 @@ function generateInvoiceHtml(order) {
       <div class="invoice-wrapper">
         <div class="header">
           <div class="logo-area">
-            <h1>ToTToys</h1>
+            <h1>ToTStore</h1>
             <p>Premium Toy Management Portal</p>
           </div>
           <div class="invoice-meta">
@@ -539,7 +539,7 @@ function generateInvoiceHtml(order) {
         </div>
         
         <div class="footer">
-          <p>Thank you for shopping at ToTToys!</p>
+          <p>Thank you for shopping at ToTStore!</p>
         </div>
       </div>
     </body>

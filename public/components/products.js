@@ -48,6 +48,7 @@ export function renderProducts(products = state.productsData) {
       <td><img src="${p.image_url || 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=500&q=80'}" class="product-image-cell" alt="${p.name}"></td>
       <td><code>#NT-${p.id.toString().padStart(4, '0')}</code></td>
       <td><strong>${p.name}</strong></td>
+      <td><span class="category-badge">${p.category || '—'}</span></td>
       <td>₹${parseFloat(p.price).toFixed(2)}</td>
       <td>${stockDisplay}</td>
       <td>${offerDisplay}</td>
@@ -65,6 +66,7 @@ export function filterProducts(e) {
   const filtered = state.productsData.filter(p => 
     (p.name && p.name.toLowerCase().includes(query)) || 
     (p.description && p.description.toLowerCase().includes(query)) ||
+    (p.category && p.category.toLowerCase().includes(query)) ||
     (p.id && `#nt-${p.id.toString().padStart(4, '0')}`.includes(query)) ||
     (p.offer_title && p.offer_title.toLowerCase().includes(query))
   );
@@ -93,6 +95,31 @@ export async function populateOfferDropdown() {
   }
 }
 
+export async function populateCategoryDropdown() {
+  const dropdown = document.getElementById('product-category');
+  if (!dropdown) return;
+
+  dropdown.innerHTML = `
+    <option value="">No Category</option>
+    <option value="__NEW_CATEGORY__">+ Add New Category...</option>
+  `;
+
+  try {
+    const res = await fetch('/api/categories');
+    const categories = await res.json();
+
+    categories.forEach(cat => {
+      const opt = document.createElement('option');
+      opt.value = cat;
+      opt.textContent = cat;
+      // Insert before "+ Add New Category..." option
+      dropdown.insertBefore(opt, dropdown.lastElementChild);
+    });
+  } catch (e) {
+    console.error('Failed to populate categories dropdown selection:', e);
+  }
+}
+
 export async function showProductForm(id = null) {
   const modal = document.getElementById('product-modal');
   const title = document.getElementById('product-modal-title');
@@ -100,6 +127,15 @@ export async function showProductForm(id = null) {
 
   form.reset();
   await populateOfferDropdown();
+  await populateCategoryDropdown();
+
+  // Hide the custom new-category input and make it not required by default
+  const newCatInput = document.getElementById('new-product-category');
+  if (newCatInput) {
+    newCatInput.style.display = 'none';
+    newCatInput.required = false;
+    newCatInput.value = '';
+  }
 
   if (id) {
     title.textContent = 'Edit Product Details';
@@ -112,6 +148,19 @@ export async function showProductForm(id = null) {
     document.getElementById('product-stock').value = p.stock_count !== undefined && p.stock_count !== null ? p.stock_count : 0;
     document.getElementById('product-offer').value = p.offer_id || '';
     document.getElementById('product-desc').value = p.description || '';
+    
+    // Set category dropdown. If it is an existing category not yet in the select, add it dynamically.
+    const categorySelect = document.getElementById('product-category');
+    if (categorySelect) {
+      const exists = Array.from(categorySelect.options).some(opt => opt.value === p.category);
+      if (p.category && !exists) {
+        const opt = document.createElement('option');
+        opt.value = p.category;
+        opt.textContent = p.category;
+        categorySelect.insertBefore(opt, categorySelect.lastElementChild);
+      }
+      categorySelect.value = p.category || '';
+    }
     
     // Sync the image preview UI (with fallback to image_url)
     const prodImages = p.images || (p.image_url ? [p.image_url] : []);
@@ -139,6 +188,25 @@ export async function handleProductSubmit(e) {
     images = [];
   }
 
+  let categoryValue = document.getElementById('product-category').value;
+  if (categoryValue === '__NEW_CATEGORY__') {
+    categoryValue = document.getElementById('new-product-category').value.trim();
+    if (categoryValue) {
+      // Add the new category to the dropdown options so it is immediately present and selected
+      const categorySelect = document.getElementById('product-category');
+      if (categorySelect) {
+        const exists = Array.from(categorySelect.options).some(opt => opt.value.toLowerCase() === categoryValue.toLowerCase());
+        if (!exists) {
+          const opt = document.createElement('option');
+          opt.value = categoryValue;
+          opt.textContent = categoryValue;
+          categorySelect.insertBefore(opt, categorySelect.lastElementChild);
+        }
+        categorySelect.value = categoryValue;
+      }
+    }
+  }
+
   const data = {
     name: document.getElementById('product-name').value,
     price: parseFloat(document.getElementById('product-price').value),
@@ -146,7 +214,8 @@ export async function handleProductSubmit(e) {
     image_url: document.getElementById('product-image').value, // Backward compatibility
     images: images,
     offer_id: document.getElementById('product-offer').value || null,
-    description: document.getElementById('product-desc').value
+    description: document.getElementById('product-desc').value,
+    category: categoryValue
   };
 
   const url = id ? `/api/products/${id}` : '/api/products';

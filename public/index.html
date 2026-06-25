@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ToTToys | Management Console</title>
+  <title>ToTStore | Management Console</title>
   <link rel="stylesheet" href="styles.css?v=2.1">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -230,6 +230,7 @@
                   <th>Image</th>
                   <th>ID</th>
                   <th>Name</th>
+                  <th>Category</th>
                   <th>Original Price</th>
                   <th>Stock</th>
                   <th>Associated Offer</th>
@@ -304,12 +305,23 @@
             <input type="number" id="product-stock" required min="0" step="1" class="form-control" placeholder="e.g. 100">
           </div>
         </div>
-        <div class="form-group">
-          <label for="product-offer">Link to Active Offer</label>
-          <select id="product-offer" class="form-control">
-            <option value="">No Active Promotion (Regular Price)</option>
-            <!-- Dynamically populated offers -->
-          </select>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="product-category">Category</label>
+            <select id="product-category" class="form-control">
+              <option value="">No Category</option>
+              <!-- Dynamically populated categories -->
+              <option value="__NEW_CATEGORY__">+ Add New Category...</option>
+            </select>
+            <input type="text" id="new-product-category" class="form-control" placeholder="Enter new category name..." style="display: none; margin-top: 10px;">
+          </div>
+          <div class="form-group">
+            <label for="product-offer">Link to Active Offer</label>
+            <select id="product-offer" class="form-control">
+              <option value="">No Active Promotion (Regular Price)</option>
+              <!-- Dynamically populated offers -->
+            </select>
+          </div>
         </div>
         <div class="form-group">
           <label>Product Images</label>

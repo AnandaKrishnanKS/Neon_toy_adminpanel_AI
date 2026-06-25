@@ -41,6 +41,42 @@ export function initEventListeners() {
   // Products Section Search
   document.getElementById('product-search').addEventListener('input', filterProducts);
 
+  // Product Category selection change listener
+  const productCategorySelect = document.getElementById('product-category');
+  const newCategoryInput = document.getElementById('new-product-category');
+  if (productCategorySelect && newCategoryInput) {
+    productCategorySelect.addEventListener('change', (e) => {
+      if (e.target.value === '__NEW_CATEGORY__') {
+        newCategoryInput.style.display = 'block';
+        newCategoryInput.required = true;
+        newCategoryInput.focus();
+      } else {
+        newCategoryInput.style.display = 'none';
+        newCategoryInput.required = false;
+        newCategoryInput.value = '';
+      }
+    });
+
+    newCategoryInput.addEventListener('change', (e) => {
+      const val = e.target.value.trim();
+      if (val) {
+        // Add to dropdown if not exists
+        const exists = Array.from(productCategorySelect.options).some(opt => opt.value.toLowerCase() === val.toLowerCase());
+        if (!exists) {
+          const opt = document.createElement('option');
+          opt.value = val;
+          opt.textContent = val;
+          // Insert before "+ Add New Category..." option
+          productCategorySelect.insertBefore(opt, productCategorySelect.lastElementChild);
+        }
+        productCategorySelect.value = val;
+        // Hide the new category input since it has been added/selected in the select dropdown
+        newCategoryInput.style.display = 'none';
+        newCategoryInput.required = false;
+      }
+    });
+  }
+
   // Orders Section Search
   document.getElementById('order-search').addEventListener('input', filterOrders);
 
