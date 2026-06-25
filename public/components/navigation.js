@@ -5,6 +5,7 @@ import { loadOrders } from './orders.js';
 import { loadOffers } from './offers.js';
 import { loadProducts } from './products.js';
 import { loadTerms } from './terms.js';
+import { loadEnquiries } from './enquiries.js';
 
 export function initNavigation() {
   const menuItems = document.querySelectorAll('.menu-item');
@@ -26,6 +27,7 @@ export function initNavigation() {
         'dashboard': 'Dashboard Overview',
         'users': 'Registered User Accounts',
         'orders': 'Customer Orders Management',
+        'enquiries': 'Handmade & Custom Enquiries',
         'offers': 'Active Deals & Coupons',
         'products': 'Store Inventory Products',
         'terms': 'Terms & Conditions'
@@ -61,6 +63,8 @@ export async function loadCurrentSection() {
       return loadUsers();
     case 'orders':
       return loadOrders();
+    case 'enquiries':
+      return loadEnquiries();
     case 'offers':
       return loadOffers();
     case 'products':

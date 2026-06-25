@@ -4,6 +4,7 @@ const { Pool } = require('pg');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const cloudinary = require('cloudinary').v2;
+const nodemailer = require('nodemailer');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -115,6 +116,197 @@ pool.query('SELECT NOW()', (err, res) => {
 // Helper for DB query
 const dbQuery = (text, params) => pool.query(text, params);
 
+// HTML Email Layout Generator for Custom Order Enquiries
+function generateCustomEnquiryEmailHtml(enquiry, type) {
+  const enquiryId = enquiry.id ? `CR-${enquiry.id}` : 'Pending';
+  
+  // Theme and header colors based on status type
+  let statusTitle = 'Custom Request Submitted';
+  let statusSubtitle = 'We have received your custom order inquiry and our designers are reviewing it!';
+  let themeColor = '#00f2ff'; // Accent Cyan
+  let statusBanner = '💬 REQUEST SUBMITTED';
+
+  if (type === 'cancelled') {
+    statusTitle = 'Custom Request Cancelled';
+    statusSubtitle = 'Your custom order request has been cancelled.';
+    themeColor = '#ff3366'; // Accent Pink
+    statusBanner = '🚫 REQUEST CANCELLED';
+  } else if (type === 'in_progress') {
+    statusTitle = 'Custom Request In Progress';
+    statusSubtitle = 'Great news! Our creators are now working on your custom toy request.';
+    themeColor = '#f59e0b'; // Orange/Amber
+    statusBanner = '⚡ REQUEST IN PROGRESS';
+  } else if (type === 'completed') {
+    statusTitle = 'Custom Request Completed';
+    statusSubtitle = 'Hooray! Your custom toy design is completed and ready.';
+    themeColor = '#10b981'; // Green
+    statusBanner = '🎁 REQUEST COMPLETED';
+  }
+
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>${statusTitle}</title>
+    </head>
+    <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0b0f19; color: #f3f4f6; -webkit-font-smoothing: antialiased;">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #0b0f19; min-height: 100vh; padding: 20px 0;">
+        <tr>
+          <td align="center" valign="top">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #111827; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);">
+              
+              <!-- Brand Header -->
+              <tr>
+                <td align="center" style="background: linear-gradient(135deg, #111827 0%, #1f2937 100%); padding: 30px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                  <div style="font-size: 2.5rem; font-weight: 800; letter-spacing: 2px; color: #ffffff; text-decoration: none; display: inline-block;">
+                    <span style="background: linear-gradient(45deg, #ff3366, #00f2ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">ToTStore</span>
+                  </div>
+                  <div style="color: #9ca3af; font-size: 0.85rem; margin-top: 5px; letter-spacing: 1px; font-weight: 600; text-transform: uppercase;">Neon Toy Laboratory</div>
+                </td>
+              </tr>
+
+              <!-- Status Banner -->
+              <tr>
+                <td align="center" style="padding: 25px 20px 10px 20px;">
+                  <div style="display: inline-block; padding: 8px 18px; border-radius: 30px; background-color: rgba(255, 255, 255, 0.03); border: 1px solid ${themeColor}; color: ${themeColor}; font-weight: 700; font-size: 0.85rem; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 15px;">
+                    ${statusBanner}
+                  </div>
+                  <h1 style="margin: 0 0 10px 0; color: #ffffff; font-size: 1.8rem; font-weight: 800;">${statusTitle}</h1>
+                  <p style="margin: 0; color: #9ca3af; font-size: 0.95rem; line-height: 1.5; max-width: 450px;">${statusSubtitle}</p>
+                </td>
+              </tr>
+
+              <!-- Main Card Body -->
+              <tr>
+                <td style="padding: 30px 30px 20px 30px;">
+                  
+                  <!-- Enquiry Overview Card -->
+                  <div style="background-color: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 20px; margin-bottom: 25px;">
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                      <tr>
+                        <td style="padding: 4px 0; color: #9ca3af; font-size: 0.85rem; font-weight: 600; text-transform: uppercase;">Request Number</td>
+                        <td align="right" style="padding: 4px 0; color: #ffffff; font-size: 0.95rem; font-weight: 700;">#${enquiryId}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 4px 0; color: #9ca3af; font-size: 0.85rem; font-weight: 600; text-transform: uppercase;">Current Status</td>
+                        <td align="right" style="padding: 4px 0; color: ${themeColor}; font-size: 0.95rem; font-weight: 700; text-transform: uppercase;">${enquiry.status || 'Pending'}</td>
+                      </tr>
+                    </table>
+                  </div>
+
+                  <!-- Product details -->
+                  <h3 style="color: #ffffff; font-size: 1.05rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 12px 0;">Product Details</h3>
+                  <div style="background-color: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 20px; margin-bottom: 25px; display: flex; gap: 20px; align-items: center;">
+                    ${enquiry.product_image ? `
+                    <img src="${enquiry.product_image}" alt="${enquiry.product_name}" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover; border: 1px solid rgba(255, 255, 255, 0.1);" />
+                    ` : ''}
+                    <div>
+                      <strong style="color: #ffffff; font-size: 1.1rem; display: block;">${enquiry.product_name}</strong>
+                      <span style="font-size: 0.8rem; background: rgba(255,255,255,0.05); color: #9ca3af; padding: 2px 8px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); margin-top: 5px; display: inline-block;">${enquiry.product_category || 'Handmade'}</span>
+                      <div style="font-size: 1rem; color: #00f2ff; font-weight: 600; margin-top: 5px;">Estimated Price: ₹${parseFloat(enquiry.product_price || '0').toFixed(2)}</div>
+                    </div>
+                  </div>
+
+                  <!-- Inquiry details -->
+                  <h3 style="color: #ffffff; font-size: 1.05rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 12px 0;">Your Inquiry Message</h3>
+                  <div style="background-color: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 20px; margin-bottom: 25px; color: #ffffff; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap;">
+                    ${enquiry.message}
+                  </div>
+
+                  <!-- Customer details -->
+                  <h3 style="color: #ffffff; font-size: 1.05rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 12px 0;">Contact Information</h3>
+                  <div style="background-color: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 20px; margin-bottom: 25px; color: #d1d5db; font-size: 0.95rem; line-height: 1.5;">
+                    <strong style="color: #ffffff; font-size: 1rem; display: block; margin-bottom: 5px;">${enquiry.name || 'Customer'}</strong>
+                    <div>Email: ${enquiry.user_email}</div>
+                    ${enquiry.phone ? `<div>Phone: ${enquiry.phone}</div>` : ''}
+                  </div>
+
+                </td>
+              </tr>
+
+              <!-- Call to Action / Support Notes -->
+              <tr>
+                <td align="center" style="padding: 10px 30px 40px 30px;">
+                  <div style="height: 1px; background-color: rgba(255, 255, 255, 0.08); margin-bottom: 25px;"></div>
+                  <p style="color: #9ca3af; font-size: 0.85rem; line-height: 1.5; margin: 0 0 20px 0;">You can check the real-time status of this custom request anytime by visiting the "Track Your Orders" page inside your profile.</p>
+                  <p style="color: #6b7280; font-size: 0.8rem; margin: 0;">If you have any questions, please contact our support team at <a href="mailto:support@totstore.example.com" style="color: #00f2ff; text-decoration: none;">support@totstore.example.com</a>.</p>
+                </td>
+              </tr>
+
+              <!-- Footer Banner -->
+              <tr>
+                <td align="center" style="background-color: rgba(0, 0, 0, 0.2); padding: 20px; border-top: 1px solid rgba(255, 255, 255, 0.05);">
+                  <div style="color: #4b5563; font-size: 0.75rem; font-weight: 600;">&copy; 2026 ToTStore Inc. All Rights Reserved.</div>
+                  <div style="color: #4b5563; font-size: 0.7rem; margin-top: 4px;">Powered by Neon Toy AI Engine</div>
+                </td>
+              </tr>
+
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+  `;
+}
+
+// Function to send custom order status email
+async function sendCustomEnquiryStatusEmail(enquiry, type, recipientEmail) {
+  // Read config from env
+  const host = process.env.SMTP_HOST;
+  const port = parseInt(process.env.SMTP_PORT || '587');
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  const from = process.env.SMTP_FROM || `"ToTStore" <no-reply@totstore.example.com>`;
+
+  if (!host || !user || !pass) {
+    console.warn('⚠️ SMTP details not configured. Unable to send custom request email.');
+    return { success: false, error: 'SMTP configuration missing in environment' };
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host,
+      port,
+      secure: port === 465,
+      auth: {
+        user,
+        pass,
+      },
+    });
+
+    let subject = 'ToTStore Custom Request Update';
+    if (type === 'submitted') {
+      subject = `Custom Request Submitted! #${enquiry.id ? `CR-${enquiry.id}` : ''}`;
+    } else if (type === 'in_progress') {
+      subject = `Custom Request In Progress #${enquiry.id ? `CR-${enquiry.id}` : ''}`;
+    } else if (type === 'completed') {
+      subject = `Custom Request Completed! #${enquiry.id ? `CR-${enquiry.id}` : ''}`;
+    } else if (type === 'cancelled') {
+      subject = `Custom Request Cancelled #${enquiry.id ? `CR-${enquiry.id}` : ''}`;
+    }
+
+    const htmlContent = generateCustomEnquiryEmailHtml(enquiry, type);
+
+    const mailOptions = {
+      from,
+      to: recipientEmail,
+      subject,
+      html: htmlContent,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✉️ Custom request email sent to ${recipientEmail}. Message ID: ${info.messageId}`);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('❌ Failed to send custom request email:', error);
+    return { success: false, error: error.message || error };
+  }
+}
+
+
 /* ==========================================================================
    AUTHENTICATION & SESSION API ENDPOINTS
    ========================================================================== */
@@ -158,6 +350,7 @@ app.get('/api/stats', async (req, res) => {
     const ordersCount = await dbQuery('SELECT COUNT(*) FROM orders');
     const productsCount = await dbQuery('SELECT COUNT(*) FROM products');
     const offersCount = await dbQuery('SELECT COUNT(*) FROM offers WHERE is_active = true');
+    const enquiriesCount = await dbQuery('SELECT COUNT(*) FROM custom_enquiries');
     
     // Revenue sum (excluding cancelled and refunded orders)
     const revenueSum = await dbQuery("SELECT SUM(total_amount) FROM orders WHERE status NOT IN ('Cancelled', 'Refunded')");
@@ -167,7 +360,8 @@ app.get('/api/stats', async (req, res) => {
       orders: parseInt(ordersCount.rows[0].count),
       products: parseInt(productsCount.rows[0].count),
       offers: parseInt(offersCount.rows[0].count),
-      revenue: parseFloat(revenueSum.rows[0].sum || 0)
+      revenue: parseFloat(revenueSum.rows[0].sum || 0),
+      enquiries: parseInt(enquiriesCount.rows[0].count || 0)
     });
   } catch (error) {
     console.error('Error fetching stats:', error);
@@ -293,6 +487,68 @@ app.get('/api/categories', async (req, res) => {
   } catch (error) {
     console.error('Error fetching categories:', error);
     res.status(500).json({ error: 'Failed to fetch categories' });
+  }
+});
+
+// 4.6. CUSTOM ENQUIRIES ENDPOINTS
+app.get('/api/enquiries', async (req, res) => {
+  try {
+    const result = await dbQuery(`
+      SELECT ce.*, p.name as product_name, p.image_url as product_image, p.price as product_price, p.category as product_category
+      FROM custom_enquiries ce
+      JOIN products p ON ce.product_id = p.id
+      ORDER BY ce.created_at DESC
+    `);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching enquiries:', error);
+    res.status(500).json({ error: 'Failed to fetch custom order enquiries' });
+  }
+});
+
+app.put('/api/enquiries/:id', async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  if (!status) {
+    return res.status(400).json({ error: 'Status is required' });
+  }
+  try {
+    const result = await dbQuery(
+      'UPDATE custom_enquiries SET status = $1 WHERE id = $2 RETURNING *',
+      [status, id]
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Enquiry not found' });
+    }
+
+    // Fetch detailed enquiry info to send in the email
+    const enqRes = await dbQuery(`
+      SELECT ce.*, p.name as product_name, p.image_url as product_image, p.price as product_price, p.category as product_category
+      FROM custom_enquiries ce
+      JOIN products p ON ce.product_id = p.id
+      WHERE ce.id = $1
+    `, [id]);
+
+    if (enqRes.rows.length > 0) {
+      const enquiry = enqRes.rows[0];
+      const typeMap = {
+        'Pending': 'submitted',
+        'In Progress': 'in_progress',
+        'Completed': 'completed',
+        'Cancelled': 'cancelled'
+      };
+      const emailType = typeMap[status] || 'submitted';
+      try {
+        await sendCustomEnquiryStatusEmail(enquiry, emailType, enquiry.user_email);
+      } catch (emailErr) {
+        console.error('Failed to send status update email (non-fatal):', emailErr);
+      }
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error updating enquiry status:', error);
+    res.status(500).json({ error: 'Failed to update enquiry status' });
   }
 });
 

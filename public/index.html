@@ -25,6 +25,9 @@
         <a href="#orders" class="menu-item" data-target="orders">
           <span class="menu-icon">📦</span> <span>Orders</span>
         </a>
+        <a href="#enquiries" class="menu-item" data-target="enquiries">
+          <span class="menu-icon">💬</span> <span>Custom Enquiries</span>
+        </a>
         <a href="#offers" class="menu-item" data-target="offers">
           <span class="menu-icon">🔥</span> <span>Offers & Deals</span>
         </a>
@@ -92,6 +95,13 @@
               <p id="stat-products">0</p>
             </div>
           </div>
+          <div class="stat-card">
+            <div class="stat-icon enquiries">💬</div>
+            <div class="stat-info">
+              <h3>Custom Requests</h3>
+              <p id="stat-enquiries">0</p>
+            </div>
+          </div>
         </div>
 
         <!-- Recent Activity Layout -->
@@ -132,6 +142,30 @@
               <button class="quick-action-btn" id="qa-add-offer">
                 <span class="qa-icon">🎉</span> Create New Discount Offer
               </button>
+            </div>
+          </div>
+
+          <div class="dashboard-card col-span-2">
+            <div class="card-header">
+              <h2>Recent Custom Requests</h2>
+              <button class="view-all-link" id="goto-enquiries-link">Manage Requests →</button>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Request ID</th>
+                    <th>Product</th>
+                    <th>Customer</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-enquiries-list">
+                  <!-- Dynamically populated -->
+                  <tr><td colspan="5" class="loading-state">Loading recent requests...</td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -197,6 +231,34 @@
               <tbody id="orders-table-body">
                 <!-- Dynamically populated -->
                 <tr><td colspan="8" class="loading-state">Loading orders...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION: CUSTOM ENQUIRIES -->
+      <section id="sec-enquiries" class="content-section">
+        <div class="section-card">
+          <div class="search-bar-container" style="margin-bottom: 25px; max-width: 400px;">
+            <input type="text" id="enquiry-search" placeholder="🔍 Search enquiries by customer, email or product..." class="form-control">
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Enquiry ID</th>
+                  <th>Product Details</th>
+                  <th>Customer Info</th>
+                  <th>Phone Number</th>
+                  <th>Enquiry Message</th>
+                  <th>Submitted Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="enquiries-table-body">
+                <tr><td colspan="8" class="loading-state">Loading enquiries...</td></tr>
               </tbody>
             </table>
           </div>
@@ -478,6 +540,24 @@
         <button class="btn-cancel" id="print-invoice-btn" style="margin-right: auto;">🖨️ Print Invoice</button>
         <button class="btn-submit" id="save-order-status-btn">Update Order Status</button>
         <button class="btn-submit" id="refund-order-btn" style="background: linear-gradient(45deg, #10b981, #00d2ff); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); display: none;">💸 Refund Order</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENQUIRY MESSAGE DETAIL MODAL -->
+  <div class="modal-overlay" id="enquiry-message-modal">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2>Enquiry Message</h2>
+        <button class="close-modal" id="close-enquiry-message-modal">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 15px 0;">
+        <div id="enquiry-message-full-text" style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6; padding: 20px; background: rgba(0, 0, 0, 0.2); border-radius: 12px; border: 1px solid var(--glass-border); max-height: 350px; overflow-y: auto;">
+          <!-- Enquiry message here -->
+        </div>
+      </div>
+      <div class="modal-footer" style="padding-top: 15px; border-top: 1px solid var(--glass-border); display: flex; justify-content: flex-end;">
+        <button class="btn-cancel" id="close-enquiry-message-btn" style="padding: 8px 20px; border-radius: 8px;">Close</button>
       </div>
     </div>
   </div>

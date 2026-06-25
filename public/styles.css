@@ -325,6 +325,8 @@ body.light-theme .sidebar-toggle-btn:hover {
 .stat-icon.users { border-color: rgba(0, 210, 255, 0.3); color: #00d2ff; }
 .stat-icon.orders { border-color: rgba(245, 158, 11, 0.3); color: #f59e0b; }
 .stat-icon.offers { border-color: rgba(255, 51, 102, 0.3); color: #ff3366; }
+.stat-icon.products { border-color: rgba(59, 130, 246, 0.3); color: #3b82f6; }
+.stat-icon.enquiries { border-color: rgba(168, 85, 247, 0.3); color: #a855f7; }
 
 .stat-info h3 {
   font-size: 0.85rem;
@@ -562,6 +564,7 @@ select.form-control {
 
 .status-badge.pending { background: var(--status-pending-bg); color: var(--status-pending); border-color: rgba(245, 158, 11, 0.2); }
 .status-badge.processing { background: var(--status-processing-bg); color: var(--status-processing); border-color: rgba(168, 85, 247, 0.2); }
+.status-badge.in-progress { background: rgba(0, 210, 255, 0.1); color: var(--accent-cyan); border-color: rgba(0, 210, 255, 0.2); }
 .status-badge.shipped { background: var(--status-shipped-bg); color: var(--status-shipped); border-color: rgba(0, 210, 255, 0.2); }
 .status-badge.delivered { background: var(--status-delivered-bg); color: var(--status-delivered); border-color: rgba(16, 185, 129, 0.2); }
 .status-badge.cancelled { background: var(--status-cancelled-bg); color: var(--status-cancelled); border-color: rgba(244, 63, 94, 0.2); }

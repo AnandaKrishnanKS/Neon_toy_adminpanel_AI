@@ -6,6 +6,7 @@ import { setTheme } from './theme.js';
 import { showProductForm, handleProductSubmit, filterProducts } from './products.js';
 import { showOfferForm, handleOfferSubmit } from './offers.js';
 import { handleTermsSubmit } from './terms.js';
+import { filterEnquiries } from './enquiries.js';
 
 export function initEventListeners() {
   // Initialize Cloudinary Dropzones
@@ -40,6 +41,12 @@ export function initEventListeners() {
 
   // Products Section Search
   document.getElementById('product-search').addEventListener('input', filterProducts);
+
+  // Enquiries Section Search
+  const enquirySearch = document.getElementById('enquiry-search');
+  if (enquirySearch) {
+    enquirySearch.addEventListener('input', filterEnquiries);
+  }
 
   // Product Category selection change listener
   const productCategorySelect = document.getElementById('product-category');
@@ -96,6 +103,8 @@ export function initEventListeners() {
   document.getElementById('close-offer-modal').onclick = () => toggleModal('offer-modal', false);
   document.getElementById('cancel-offer-form').onclick = () => toggleModal('offer-modal', false);
   document.getElementById('close-order-modal').onclick = () => toggleModal('order-detail-modal', false);
+  document.getElementById('close-enquiry-message-modal').onclick = () => toggleModal('enquiry-message-modal', false);
+  document.getElementById('close-enquiry-message-btn').onclick = () => toggleModal('enquiry-message-modal', false);
 
   // Settings Modal triggers
   document.getElementById('settings-btn').onclick = () => toggleModal('settings-modal', true);
