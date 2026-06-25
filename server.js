@@ -104,6 +104,36 @@ pool.query('SELECT NOW()', (err, res) => {
                 console.error('❌ Database migration failed (creating terms_conditions table):', migrateTermsErr);
               } else {
                 console.log('✅ Database migration successful (terms_conditions table ready)!');
+                // Alter custom_enquiries to add address columns
+                const alterEnquiriesQuery = `
+                  ALTER TABLE custom_enquiries ADD COLUMN IF NOT EXISTS address TEXT;
+                  ALTER TABLE custom_enquiries ADD COLUMN IF NOT EXISTS landmark VARCHAR(255);
+                  ALTER TABLE custom_enquiries ADD COLUMN IF NOT EXISTS state VARCHAR(100);
+                  ALTER TABLE custom_enquiries ADD COLUMN IF NOT EXISTS district VARCHAR(100);
+                  ALTER TABLE custom_enquiries ADD COLUMN IF NOT EXISTS city VARCHAR(100);
+                  ALTER TABLE custom_enquiries ADD COLUMN IF NOT EXISTS pincode VARCHAR(20);
+                `;
+                pool.query(alterEnquiriesQuery, (migrateEnqErr, migrateEnqRes) => {
+                  if (migrateEnqErr) {
+                    console.error('❌ Database migration failed (adding address columns to custom_enquiries):', migrateEnqErr);
+                  } else {
+                    console.log('✅ Database migration successful (custom_enquiries address columns ready)!');
+                    
+                    // Alter users table to add address columns
+                    const alterUsersQuery = `
+                      ALTER TABLE users ADD COLUMN IF NOT EXISTS landmark VARCHAR(255);
+                      ALTER TABLE users ADD COLUMN IF NOT EXISTS state VARCHAR(100);
+                      ALTER TABLE users ADD COLUMN IF NOT EXISTS district VARCHAR(100);
+                    `;
+                    pool.query(alterUsersQuery, (migrateUsersErr, migrateUsersRes) => {
+                      if (migrateUsersErr) {
+                        console.error('❌ Database migration failed (adding address columns to users table):', migrateUsersErr);
+                      } else {
+                        console.log('✅ Database migration successful (users address columns ready)!');
+                      }
+                    });
+                  }
+                });
               }
             });
           }
@@ -223,6 +253,15 @@ function generateCustomEnquiryEmailHtml(enquiry, type) {
                     ${enquiry.phone ? `<div>Phone: ${enquiry.phone}</div>` : ''}
                   </div>
 
+                  <!-- Shipping details -->
+                  <h3 style="color: #ffffff; font-size: 1.05rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 12px 0;">Delivery Information</h3>
+                  <div style="background-color: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 20px; margin-bottom: 25px; color: #d1d5db; font-size: 0.95rem; line-height: 1.5;">
+                    <div><strong>Address:</strong> ${enquiry.address || '—'}</div>
+                    ${enquiry.landmark ? `<div><strong>Landmark:</strong> ${enquiry.landmark}</div>` : ''}
+                    <div><strong>Location:</strong> ${enquiry.city || '—'}, ${enquiry.district || '—'}, ${enquiry.state || '—'}</div>
+                    <div><strong>Pincode:</strong> ${enquiry.pincode || '—'}</div>
+                  </div>
+
                 </td>
               </tr>
 
@@ -338,6 +377,13 @@ app.post('/api/logout', (req, res) => {
 
 // Apply authentication middleware to all subsequent API endpoints
 app.use('/api', requireAuth);
+
+// 0. CONFIGURATION ENDPOINT
+app.get('/api/config', (req, res) => {
+  res.json({
+    whatsapp_number: process.env.WHATSAPP_NUMBER || '7025915922'
+  });
+});
 
 /* ==========================================================================
    API ENDPOINTS

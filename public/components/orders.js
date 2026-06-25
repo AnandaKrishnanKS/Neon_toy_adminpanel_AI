@@ -143,9 +143,16 @@ export function viewOrderDetails(id) {
     shipping = {};
   }
 
+  const fullAddress = [
+    shipping.address,
+    shipping.landmark ? `Landmark: ${shipping.landmark}` : null,
+    shipping.district,
+    shipping.state
+  ].filter(Boolean).join(', ');
+
   document.getElementById('od-name').textContent = shipping.name || '—';
   document.getElementById('od-phone').textContent = shipping.phone || '—';
-  document.getElementById('od-address').textContent = shipping.address || '—';
+  document.getElementById('od-address').textContent = fullAddress || '—';
   document.getElementById('od-city').textContent = shipping.city || '—';
   document.getElementById('od-zipcode').textContent = shipping.zipcode || '—';
   document.getElementById('od-payment').textContent = shipping.payment_method || 'COD';

@@ -3,5 +3,6 @@ export const state = {
   usersData: [],
   ordersData: [],
   offersData: [],
-  productsData: []
+  productsData: [],
+  whatsappNumber: null
 };
